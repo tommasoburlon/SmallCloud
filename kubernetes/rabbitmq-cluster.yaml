@@ -1,0 +1,13 @@
+apiVersion: rabbitmq.com/v1beta1
+kind: RabbitmqCluster
+metadata:
+  name: rabbitmq-service
+spec:
+  replicas: 1
+  image: rabbitmq:3.9.11
+  rabbitmq:
+    additionalConfig: |
+      loopback_users.guest = false
+      default_user = guest
+      default_pass = guest
+    advancedConfig: ""
