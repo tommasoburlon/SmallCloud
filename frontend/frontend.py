@@ -129,6 +129,10 @@ def delUser(id):
 	return json.dumps({"response" : mess.ret_code.value})
 	
 ######### THREAD HANDLE ############
+def flushThreads():
+	for i in range(THREAD_PAGES):
+		cache.delete("thread_page_" + str(i))
+			
 @app.route("/threads/<page>", methods = ['GET'])
 def getThreads(page):
 	cacheMiss = False
@@ -172,8 +176,7 @@ def postThread():
 		sys.stdout.flush()
 		abort(500)
 	else:
-		for i in range(THREAD_PAGES):
-			cache.delete("thread_page_" + str(i))
+		flushThreads()
 		thread    = mess.contents[0]
 		cache.set("thread_" + str(thread.id), thread.serialize())
 		return json.dumps({'status' : 'OK', 'thread' : thread.json()})
@@ -222,8 +225,7 @@ def putThread(id):
 		sys.stdout.flush()
 		abort(500)
 	else:
-		for i in range(THREAD_PAGES):
-			cache.delete("thread_page_" + str(i))
+		flushThreads()
 		thread    = mess.contents[0]
 		cache.set("thread_" + str(thread.id), thread.serialize())
 		return json.dumps({'status' : 'OK', 'thread' : thread.json()})
@@ -235,7 +237,8 @@ def delThread(id):
 	thread.id = id
 	mess.insert(thread)
 	mess = Message.deserialize(queue.sendJob("DELETE", mess.serialize()))
-		
+	
+	flushThreads()
 	return json.dumps({"response" : mess.ret_code.value})
 	
 ############ COMMENT HANDLE #############
